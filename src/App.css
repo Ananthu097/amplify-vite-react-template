@@ -35,8 +35,40 @@
 
 .card {
   padding: 2em;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 1rem;
 }
 
-.read-the-docs {
-  color: #888;
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em;
+  border-bottom: 1px solid #eee;
+}
+
+li.completed {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+button {
+  margin-left: 1em;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  transition: background-color 300ms;
+}
+
+button:hover {
+  background-color: #5a54d6;
 }
