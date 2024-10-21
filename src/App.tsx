@@ -14,7 +14,7 @@ function App() {
   }, []);
     
   function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+    client.models.Todo.delete({ id });
   }
 
   function createTodo() {
@@ -27,7 +27,8 @@ function App() {
       <button onClick={createTodo}>+ new</button>
       <ul>
         {todos.map((todo) => (
-          <li          onClick={() => deleteTodo(todo.id)} key={todo.id}>{todo.content}</li>
+          <li         
+            onClick={() => deleteTodo(todo.id)} key={todo.id}>{todo.content}</li>
         ))}
       </ul>
       <div>
