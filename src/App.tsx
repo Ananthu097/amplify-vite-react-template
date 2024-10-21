@@ -1,42 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Auth } from 'aws-amplify';
-import TodoList from './components/TodoList';
-import AuthComponent from './components/Auth';
+import { generateClient } from "aws-amplify/data"; // Ensure the correct import
+import type { Schema } from "../amplify/data/resource"; // Adjust according to your setup
 
-const App: React.FC = () => {
-  const [user, setUser] = useState<any>(null); // You can define a more specific type based on your user structure
+const client = generateClient<Schema>();
+
+interface ChatListProps {
+  user: any; // Define a more specific type based on your user structure
+}
+
+const ChatList: React.FC<ChatListProps> = ({ user }) => {
+  const [chats, setChats] = useState<Array<any>>([]); // Adjust type as needed
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const currentUser = await Auth.currentAuthenticatedUser();
-        setUser(currentUser);
-      } catch {
-        setUser(null);
-      }
-    };
+    const subscription = client.models.Chat.observeQuery().subscribe({
+      next: async (data) => {
+        const userChats = data.items.filter(chat => chat.owner === user.username);
+        setChats([...userChats]);
+      },
+    });
 
-    checkUser();
-  }, []);
+    return () => subscription.unsubscribe(); // Clean up on unmount
+  }, [user]);
 
-  const handleLogout = async () => {
-    await Auth.signOut();
-    setUser(null);
+  const createChat = async () => {
+    const message = window.prompt("Chat message");
+    if (message) {
+      await client.models.Chat.create({ message, owner: user.username });
+    }
+  };
+
+  const deleteChat = async (chat: any) => {
+    await client.models.Chat.delete(chat.id);
   };
 
   return (
     <div>
-      {user ? (
-        <>
-          <h1>Welcome, {user.username}</h1>
-          <button onClick={handleLogout}>Logout</button>
-          <TodoList user={user} />
-        </>
-      ) : (
-        <AuthComponent onLogin={() => setUser(true)} />
-      )}
+      <button onClick={createChat}>+ New Chat</button>
+      <ul>
+        {chats.map((chat) => (
+          <li key={chat.id}>
+            <span>{chat.message}</span>
+            <button onClick={() => deleteChat(chat)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
-export default App;
+export default ChatList;
